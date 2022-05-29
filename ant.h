@@ -1,5 +1,10 @@
-﻿#include "raylib-cpp.hpp"
+﻿#ifndef ANT_H
+#define ANT_H
+
+#include "raylib-cpp.hpp"
 #include "raymath.h"
+#include "obstacle.h"
+#include <vector>
 
 class ant
 {
@@ -18,3 +23,5 @@ public:
 	int checkColision(std::vector<obstacle> obstacles, float timeStep);
 
 };
+
+#endif

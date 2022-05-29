@@ -27,10 +27,10 @@ int main()
 
     ant hormiga;
 
-    ant ant[10];
+    ant ant[100];
 
 
-    for (auto &i : ant)
+    for (auto& i : ant)
     {
         i.position = { 0,0 };
     }
@@ -53,19 +53,17 @@ int main()
     
     while (!WindowShouldClose())
     {
+        
 
-        BeginMode2D(camera);
-
-        if (IsKeyPressed(MOUSE_BUTTON_RIGHT))
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
-            obstacles.push_back(obstacle(GetMousePosition()));
+            obstacles.push_back(obstacle(Vector2Subtract(GetMousePosition() , camera.offset)));
         }
 
-        EndMode2D();
 
-        for (auto &i : ant)
+        for (auto& i : ant)
         {
-            i.update(TIME_STEP,obstacles);
+            i.update(TIME_STEP, obstacles);
         }
 
        
@@ -75,18 +73,16 @@ int main()
 
         BeginMode2D(camera);
 
-        for (auto &i : ant)
+        for (auto& i : ant)
         {
-            DrawCircle(i.position.x, i.position.y, 5, RED);
+            DrawPixel(i.position.x, i.position.y, BLACK);
         }
+       
         for (auto& a : obstacles)
         {
             DrawCircle(a.position.x, a.position.y, a.radius, GRAY);
         }
-     
-        DrawCircle(0, 0, 10, PURPLE);
-
-        
+             
 
         EndMode2D();
 
@@ -98,6 +94,8 @@ int main()
 
         //simview.renderOrbitalSim2D(&sim);
         EndDrawing();
+
+        cout << obstacles.size() << endl;
     }
 
     CloseWindow();
