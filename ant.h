@@ -10,8 +10,8 @@
 #define NEURON_RANGE 10
 
 typedef struct {
-	float home;
-	float food;
+	int home;
+	int food;
 }pheromones;
 
 class ant

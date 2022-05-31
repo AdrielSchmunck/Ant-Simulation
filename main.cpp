@@ -75,6 +75,7 @@ int main()
     int checkIlegalAnt = 0;
     raylib::Color blackColor = BLACK;
 
+    int pheromoneTimer = 0;
 
     while (!WindowShouldClose())
     {
@@ -104,15 +105,19 @@ int main()
             }
         }
 
-
-        
+        pheromoneTimer++;
+        if (pheromoneTimer > 100)
+        {
             for (auto& i : pheromoneMap)
             {
                 if (i.food > 0)
-                    i.food -= 0.001f;
+                    i.food -= 1;
                 if (i.home > 0)
-                    i.home -= 0.001f;
+                    i.home -= 1;
             }
+            pheromoneTimer = 0;
+        }
+            
          
         
         

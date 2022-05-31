@@ -30,7 +30,7 @@ void ant::update(float timeStep, Image &map, std::vector<pheromones> &pheromoneM
 	
 	
 	if((neurone[1]>neurone[0])&&(neurone[1]>neurone[2]))
-		pheromoneVelocity = 0;
+		pheromoneVelocity = { 0,0 };
 	else if ((neurone[1] < neurone[0]) && (neurone[1] < neurone[2]))
 	{
 		if(neurone[0]>neurone[2])
@@ -43,40 +43,29 @@ void ant::update(float timeStep, Image &map, std::vector<pheromones> &pheromoneM
 	else if(neurone[0]<neurone[2])
 		pheromoneVelocity = -(raylib::Vector2)Vector2Rotate(velocity, NEURON_ANGLE) ;
 	else
-		pheromoneVelocity = 0;
+		pheromoneVelocity = {0,0};
 
-
-	/*max = neurone[0] > neurone[1] ? 0 : 1;
-	max = neurone[max] > neurone[2] ? max : 2;
-
-
-	if (max == 0)
-		pheromoneVelocity =  -(raylib::Vector2)Vector2Rotate(velocity, -NEURON_ANGLE) * neurone[0];
-	else if (max == 1)
-		pheromoneVelocity = -velocity * neurone[1];
-	else if (max==2)
-		pheromoneVelocity = -(raylib::Vector2)Vector2Rotate(velocity, NEURON_ANGLE) * neurone[2];*/
-
-
-	velocity = (velocity + pheromoneVelocity*10 + velocityDesviation * wanderStrength).Normalize();
+	if (pheromoneVelocity == Vector2Zero())
+		velocity = (velocity + velocityDesviation * wanderStrength).Normalize();
+	else
+		velocity = (velocity + pheromoneVelocity * 100 ).Normalize();
 	velocity = velocity * checkColision(map, timeStep);	
 	position = position + velocity * timeStep;
 
-	if(checkColision(map, timeStep)==1)
+	if((rand()%2-1) && (checkColision(map, timeStep) == 1) && ((((int)position.y) * map.width + (int)position.x) < 1000 * 600))
 	{
 		if (hasFood)
 		{
-			if (pheromoneMap[(int)(position.y * map.width + position.x)].food < 10000)
+			if (pheromoneMap[(((int)position.y) * map.width + position.x)].food < 10000)
 			{
-				pheromoneMap[((int)position.y * map.width + (int)position.x)].food += 1;
-
+				pheromoneMap[((int)position.y * map.width + position.x)].food += 10;
 			}
 
 		}
 		else
-			if (pheromoneMap[(int)(position.y * map.width + position.x)].home < 10000)
+			if (pheromoneMap[((int)position.y * map.width + position.x)].home < 10000)
 			{
-				pheromoneMap[((int)position.y * map.width + (int)position.x)].home += 1;
+				pheromoneMap[((int)position.y * map.width + position.x)].home += 10;
 
 			}
 	}
@@ -94,7 +83,7 @@ int ant::checkColision(Image& image, float timeStep)
 	raylib::Color pixelHome = YELLOW;
 	if (pixel == pixelCheck)
 	{
-		return -1;
+		return -0;
 	}
 	else if (pixel == pixelFood)
 	{
@@ -117,20 +106,22 @@ unsigned int ant::getScoreArroundPoint(std::vector<pheromones> &pheromoneMap, ra
 	float score=0;
 	if (!pheromoneType)
 	{
-		for (int x = -3; x <= 3; x++)
+		for (int x = -5; x <= 5; x++)
 		{
-			for (int y = -3; y <= 3; y++)
+			for (int y = -5; y <= 5; y++)
 			{
-				score += pheromoneMap[(y + (int)position.y) * 1000 + x + (int)position.x].home;
+				if(((y + (int)position.y) * 1000 + x + (int)position.x) < 1000*600)	//HARDCODEADO
+					score += pheromoneMap[(y + (int)position.y) * 1000 + x + (int)position.x].home;
 			}
 		}
 	}
 	else
-		for (int x = -3; x <= 3; x++)
+		for (int x = -5; x <= 5; x++)
 		{
-			for (int y = -3; y <= 3; y++)
+			for (int y = -5; y <= 5; y++)
 			{
-				score += pheromoneMap[(y + (int)position.y) * 1000 + x+ (int)position.x].food;
+				if (((y + (int)position.y) * 1000 + x + (int)position.x) < 1000 * 600)	//HARDCODEADO
+					score += pheromoneMap[(y + (int)position.y) * 1000 + x+ (int)position.x].food;
 			}
 		}
 	return score;
