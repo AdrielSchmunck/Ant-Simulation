@@ -11,33 +11,23 @@
 #include <stdio.h>
 #include "iostream"
 #include "ant.h"
-#include "obstacle.h"
 #include <vector>
 
 
 #include "raylib-cpp.hpp"
 
 
-#define TIME_STEP 0.01f
+#define TIME_STEP 1.0f
+#define ANT_AMOUNT 50
+#define ANT_INITIAL_POSITION { screenWidth/2, screenHeight/2 }
 
 using namespace std;
 
+
+
+
 int main()
-{
-
-    ant hormiga;
-
-    ant ant[100];
-
-
-    for (auto& i : ant)
-    {
-        i.position = { 0,0 };
-    }
-        
-    vector<obstacle> obstacles;
-    
-        
+{          
     const int screenWidth = 1000;
     const int screenHeight = 600;
 
@@ -50,53 +40,131 @@ int main()
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
     
-    
+    srand(time(NULL));
+
+    ant ant[ANT_AMOUNT];         //create ants
+
+    for (auto& i : ant)         
+    {
+        i.position = ANT_INITIAL_POSITION;
+    }
+
+    raylib::Color terrainColor = BLACK;
+    Image map = LoadImage("C:/Users/USUARIO/Desktop/ITBA/Algoritmos y estructuras de datos/Ant Simulation/resources/map1.png");
+
+    Texture2D mapTexture = LoadTextureFromImage(map);    
+
+    bool textureFlop = false;
+    RenderTexture2D mapRenderTexture[2];
+    for (int i = 0; i < 2; i++)
+    {
+        mapRenderTexture[i] = LoadRenderTexture(screenWidth, screenHeight);
+        BeginTextureMode(mapRenderTexture[i]);
+        ClearBackground(BLACK);
+        EndTextureMode();
+    }
+
+    std::vector<pheromones> pheromoneMap;
+    pheromoneMap.resize(screenWidth * screenHeight,  { 0, 0 });
+
+
+
+    /*for (int i = 0; i < 3000; i++)
+        ant[i].hasFood = 1;*/
+
+    int checkIlegalAnt = 0;
+    raylib::Color blackColor = BLACK;
+
+
     while (!WindowShouldClose())
     {
-        
 
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-        {
-            obstacles.push_back(obstacle(Vector2Subtract(GetMousePosition() , camera.offset)));
-        }
+        /*Color colorMouse = GetImageColor(map,GetMousePosition().x, GetMousePosition().y);        
+        cout << (int)colorMouse.r << " " << (int)colorMouse.g << " " << (int)colorMouse.b << endl;*/
 
+        //cout << pheromoneMap[GetMousePosition().y * screenWidth + GetMousePosition().x].food << endl;
 
         for (auto& i : ant)
         {
-            i.update(TIME_STEP, obstacles);
+            i.update(TIME_STEP, map, pheromoneMap);
         }
 
+        checkIlegalAnt++;
+        if (checkIlegalAnt > 20)
+        {
+            for (auto& i : ant)
+            {
+                if ((raylib::Color)GetImageColor(map, i.position.x, i.position.y) == blackColor)
+                {
+                    DrawCircle(i.position.x, i.position.y, 10, BLUE);
+                    i.position = { screenWidth / 2,screenHeight / 2 };
+                    cout << "HORMIGA ILEGAL!! " << endl;
+                    
+                }
+            }
+        }
+
+
+        
+            for (auto& i : pheromoneMap)
+            {
+                if (i.food > 0)
+                    i.food -= 0.001f;
+                if (i.home > 0)
+                    i.home -= 0.001f;
+            }
+         
+        
+        
+        textureFlop = !textureFlop;
+
+        int lastFrame = textureFlop ? 1 : 0;
+        int thisFrame = textureFlop ? 0 : 1;
+
+        BeginTextureMode(mapRenderTexture[thisFrame]);
+        DrawTextureRec(mapTexture, Rectangle{ 0,0, screenWidth, screenHeight }, Vector2Zero(), ColorAlpha(WHITE, 1));
+        DrawTextureRec(mapRenderTexture[lastFrame].texture, Rectangle{ 0,0, screenWidth, -screenHeight }, Vector2Zero(), ColorAlpha(WHITE, 0.999f));
+
+        for (auto& i : ant)
+        {
+            DrawPixelV(i.position, i.hasFood?GREEN:RED);
+        }
        
-        // Render
+        for(int x=0;x<1000;x++)
+            for (int y = 0; y < 600; y++)
+            {
+                if (pheromoneMap[y * 1000 + x].home >0 )
+                    DrawPixel(x, y, PURPLE);
+            }
+        for (int x = 0; x < 1000; x++)
+            for (int y = 0; y < 600; y++)
+            {
+                if (pheromoneMap[y * 1000 + x].food > 0)
+                    DrawPixel(x, y, BLUE);
+            }
+
+
+        EndTextureMode();
+
         BeginDrawing();
         ClearBackground(WHITE);
 
-        BeginMode2D(camera);
+        DrawTextureRec(mapRenderTexture[thisFrame].texture, Rectangle{ 0,0, screenWidth, -screenHeight }, Vector2Zero(), WHITE);
 
-        for (auto& i : ant)
+        for (auto &i : ant)
         {
-            DrawPixel(i.position.x, i.position.y, BLACK);
+            DrawPixelV(i.position, BLACK);
         }
-       
-        for (auto& a : obstacles)
-        {
-            DrawCircle(a.position.x, a.position.y, a.radius, GRAY);
-        }
-             
 
-        EndMode2D();
-
-        //camera.BeginMode();
-        //simview.renderOrbitalSim3D(&sim);
-
-        //DrawGrid(10, 10.0f);
-        //camera.EndMode();
-
-        //simview.renderOrbitalSim2D(&sim);
         EndDrawing();
 
-        cout << obstacles.size() << endl;
     }
+
+    UnloadImage(map);
+    UnloadTexture(mapTexture);
+    UnloadRenderTexture(mapRenderTexture[0]);
+    UnloadRenderTexture(mapRenderTexture[1]);
+
 
     CloseWindow();
 

@@ -23,12 +23,12 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 endif()
 
 # Main executable
-add_executable(antcolony1 main.cpp ant.cpp "obstacle.cpp")
+add_executable(antcolony main.cpp ant.cpp )
 
 # Raylib
 find_package(raylib CONFIG REQUIRED)
-target_include_directories(antcolony1 PRIVATE ${RAYLIB_INCLUDE_DIRS})
-target_link_libraries(antcolony1 PRIVATE ${RAYLIB_LIBRARIES}  raylib_cpp)
+target_include_directories(antcolony PRIVATE ${RAYLIB_INCLUDE_DIRS})
+target_link_libraries(antcolony PRIVATE ${RAYLIB_LIBRARIES}  raylib_cpp)
 
 
  #Main test
