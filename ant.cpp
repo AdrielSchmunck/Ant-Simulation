@@ -11,7 +11,11 @@ using namespace std;
 void ant::update(float timeStep, Image &map, std::vector<pheromones> &pheromoneMap)
 {
 	raylib::Vector2 pheromoneVelocity;
-	vector<float> neurone(3);
+	vector<unsigned int> neurone(3);
+	
+	neurone[0] = 0;
+	neurone[1] = 0;
+	neurone[2] = 0;
 
 	velocityDesviation = { (float)(rand() % 101 - 50) , (float)(rand() % 101 - 50) };
 	
@@ -28,6 +32,13 @@ void ant::update(float timeStep, Image &map, std::vector<pheromones> &pheromoneM
 		neurone[2] = getScoreArroundPoint(pheromoneMap, position - (raylib::Vector2)Vector2Rotate(velocity, NEURON_ANGLE) * NEURON_RANGE, 1);
 	}
 	
+	/*if (neurone[1]>0 || neurone[0]>0 || neurone[2]>0)
+	{
+		if (hasFood&&(foodPheromonePower<100))
+			foodPheromonePower = 10;
+		else if (!hasFood&&(homePheromonePower<100))
+			homePheromonePower = 10;
+	}*/
 	
 	if((neurone[1]>neurone[0])&&(neurone[1]>neurone[2]))
 		pheromoneVelocity = { 0,0 };
@@ -45,85 +56,141 @@ void ant::update(float timeStep, Image &map, std::vector<pheromones> &pheromoneM
 	else
 		pheromoneVelocity = {0,0};
 
+
 	if (pheromoneVelocity == Vector2Zero())
 		velocity = (velocity + velocityDesviation * wanderStrength).Normalize();
 	else
-		velocity = (velocity + pheromoneVelocity * 100 ).Normalize();
-	velocity = velocity * checkColision(map, timeStep);	
+		velocity = (velocity + pheromoneVelocity * 10 ).Normalize();
+
+	int colision = checkColision(map, timeStep);
+
+	velocity = velocity * colision;	
 	position = position + velocity * timeStep;
 
-	if((rand()%2-1) && (checkColision(map, timeStep) == 1) && ((((int)position.y) * map.width + (int)position.x) < 1000 * 600))
+	if((checkColision(map, timeStep) >= 0) && ((((int)position.y) * map.width + (int)position.x) < 1000 * 600))
 	{
 		if (hasFood)
 		{
-			if (pheromoneMap[(((int)position.y) * map.width + position.x)].food < 10000)
+			if (pheromoneMap[(((int)position.y) * map.width + (int)position.x)].food < 1000)
 			{
-				pheromoneMap[((int)position.y * map.width + position.x)].food += 10;
+				/*pheromoneMap[((int)position.y * map.width + (int)position.x)].food += (int)(foodPheromonePower*0.5);
+				if (foodPheromonePower > 50)
+					foodPheromonePower -= 1;*/
+
+				pheromoneMap[((int)position.y * map.width + (int)position.x)].food += 10;
 			}
 
 		}
 		else
-			if (pheromoneMap[((int)position.y * map.width + position.x)].home < 10000)
+			if (pheromoneMap[((int)position.y * map.width + (int)position.x)].home < 1000)
 			{
-				pheromoneMap[((int)position.y * map.width + position.x)].home += 10;
+				/*pheromoneMap[((int)position.y * map.width + (int)position.x)].home += (int)(homePheromonePower*0.5);
+				if(homePheromonePower > 2)
+					homePheromonePower -= 1;*/
+				pheromoneMap[((int)position.y * map.width + (int)position.x)].home += 10;
 
 			}
 	}
 	
 }
 
-int ant::checkColision(Image& image, float timeStep)
+int ant::checkColision(Image& map, float timeStep)
 {
 	raylib::Vector2 futurePosition = position + velocity * timeStep;
 
 
-	raylib::Color pixel = GetImageColor(image, (int)futurePosition.x, (int)futurePosition.y);
+	raylib::Color pixel = GetImageColor(map, (int)futurePosition.x, (int)futurePosition.y);
 	raylib::Color pixelCheck = BLACK;
 	raylib::Color pixelFood = BLUE;
 	raylib::Color pixelHome = YELLOW;
 	if (pixel == pixelCheck)
 	{
-		return -0;
+		return 0;
 	}
-	else if (pixel == pixelFood)
+	else if ((pixel == pixelFood)&&(hasFood==0))
 	{
 		hasFood = true;
+		//homePheromonePower = 0;
+		//foodPheromonePower = 300;
 		return -1;
 	}	
-	else if (pixel == pixelHome)
+	else if ((pixel == pixelHome)&&(hasFood==1))
 	{
 		hasFood = false;
-		//return -1;
+		//homePheromonePower = 200;
+		//foodPheromonePower = 0;
+		return -1;
 	}
-		
-
-	return 1;
+	else
+	{
+		return 1;
+	}
 
 }
 
-unsigned int ant::getScoreArroundPoint(std::vector<pheromones> &pheromoneMap, raylib::Vector2 position, bool pheromoneType)
+unsigned int ant::getScoreArroundPoint(std::vector<pheromones> &pheromoneMap, raylib::Vector2 checkPosition, bool pheromoneType)
 {
-	float score=0;
-	if (!pheromoneType)
+	int scoreFood=0;
+	int scoreHome = 0;
+	int newScore = 0;
+	//if (!pheromoneType)
+	//{
+	//	for (int x = -3; x <= 3; x++)
+	//	{
+	//		for (int y = -3; y <= 3; y++)
+	//		{
+	//			if(((y + (int)position.y) * 1000 + x + (int)position.x) < 1000*600)	//HARDCODEADO
+	//				score += pheromoneMap[(y + (int)position.y) * 1000 + x + (int)position.x].home;
+	//			else
+	//				cout << (y + (int)position.y) * 1000 + x + (int)position.x << endl;
+	//		}
+	//	}
+	//}
+	//else
+	//	for (int x = -3; x <= 3; x++)
+	//	{
+	//		for (int y = -3; y <= 3; y++)
+	//		{
+	//			if (((y + (int)position.y) * 1000 + x + (int)position.x) < 1000 * 600)	//HARDCODEADO
+	//				score += pheromoneMap[(y + (int)position.y) * 1000 + x+ (int)position.x].food;
+	//			else
+	//				cout << (y + (int)position.y) * 1000 + x + (int)position.x << endl;
+	//		}
+	//	}
+
+	for (int x = -SENSOR_SIZE; x <= SENSOR_SIZE; x++)
 	{
-		for (int x = -5; x <= 5; x++)
+		for (int y = -SENSOR_SIZE; y <= SENSOR_SIZE; y++)
 		{
-			for (int y = -5; y <= 5; y++)
-			{
-				if(((y + (int)position.y) * 1000 + x + (int)position.x) < 1000*600)	//HARDCODEADO
-					score += pheromoneMap[(y + (int)position.y) * 1000 + x + (int)position.x].home;
-			}
+			if(((y + (int)position.y) * 1000 + x + (int)position.x) < 1000*600)	//HARDCODEADO
+				scoreHome += pheromoneMap[(y + (int)position.y) * 1000 + x + (int)position.x].home;
+			else
+				cout << (y + (int)position.y) * 1000 + x + (int)position.x << endl;
 		}
 	}
-	else
-		for (int x = -5; x <= 5; x++)
+		for (int x = -SENSOR_SIZE; x <= SENSOR_SIZE; x++)
+	{
+		for (int y = -SENSOR_SIZE; y <= SENSOR_SIZE; y++)
 		{
-			for (int y = -5; y <= 5; y++)
-			{
-				if (((y + (int)position.y) * 1000 + x + (int)position.x) < 1000 * 600)	//HARDCODEADO
-					score += pheromoneMap[(y + (int)position.y) * 1000 + x+ (int)position.x].food;
-			}
+			if (((y + (int)position.y) * 1000 + x + (int)position.x) < 1000 * 600)	//HARDCODEADO
+				scoreFood += pheromoneMap[(y + (int)position.y) * 1000 + x+ (int)position.x].food;
+			else
+				cout << (y + (int)position.y) * 1000 + x + (int)position.x << endl;
 		}
-	return score;
+	}
+
+	scoreHome = pheromoneMap[((int)checkPosition.y) * 1000 + (int)checkPosition.x].home;
+	scoreFood = pheromoneMap[((int)checkPosition.y) * 1000 + (int)checkPosition.x].food;
+	if (!pheromoneType)
+	{
+		newScore = scoreHome - scoreFood;
+	}
+	else
+	{
+		newScore = scoreFood - scoreHome;
+	}
+	//return score;
+	//return (newScore > 0 ? newScore : 0);
+	return (pheromoneType ? scoreFood : scoreHome);
 }
 
