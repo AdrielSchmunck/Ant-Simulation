@@ -18,13 +18,11 @@
 
 
 #define TIME_STEP 1.0f
-#define ANT_AMOUNT 500
+#define ANT_AMOUNT 5000
 #define ANT_INITIAL_POSITION { screenWidth/2, screenHeight/2 }
 #define DIFUSION_TIMER 5
 
 using namespace std;
-
-
 
 
 int main()
@@ -66,7 +64,7 @@ int main()
     }
 
     std::vector<pheromones> pheromoneMap;
-    pheromoneMap.resize(screenWidth * screenHeight+10000,  { 0, 0 });
+    pheromoneMap.resize(screenWidth * screenHeight+15000,  { 0, 0 });
 
 
 
@@ -92,7 +90,7 @@ int main()
             i.update(TIME_STEP, map, pheromoneMap);
         }
 
-        /*checkIlegalAnt++;
+        checkIlegalAnt++;
         if (checkIlegalAnt > 20)
         {
             for (auto& i : ant)
@@ -100,13 +98,15 @@ int main()
                 if ((raylib::Color)GetImageColor(map, (int)i.position.x, (int)i.position.y) == blackColor)
                 {
                     i.position = { screenWidth / 2,screenHeight / 2 };
+                    i.hasFood = 0;
+                    i.homePheromonePower = 300;
                     cout << "HORMIGA ILEGAL!! " << endl;
                     
                 }
             }
-        }*/
+        }
 
-        pheromoneTimer++;
+        pheromoneTimer++;                 
         if (pheromoneTimer > DIFUSION_TIMER)
         {
             for (auto& i : pheromoneMap)
@@ -131,13 +131,13 @@ int main()
         DrawTextureRec(mapTexture, Rectangle{ 0,0, screenWidth, screenHeight }, Vector2Zero(), ColorAlpha(WHITE, 1));
         DrawTextureRec(mapRenderTexture[lastFrame].texture, Rectangle{ 0,0, screenWidth, -screenHeight }, Vector2Zero(), ColorAlpha(WHITE, 0.999f));
 
-        /*for (auto& i : ant)               //ant trail in texture
-        {
-            if(i.foodPheromonePower>0)
-                DrawPixelV(i.position, GREEN);
-            else if(i.homePheromonePower>0)
-                DrawPixelV(i.position, RED);
-        }*/
+        //for (auto& i : ant)               //ant trail in texture
+        //{
+        //    if(i.foodPheromonePower>20)
+        //        DrawPixelV(i.position, GREEN);
+        //    else if(i.homePheromonePower>10)
+        //        DrawPixelV(i.position, RED);
+        //}
        
         for(int x=0;x<1000;x++)             //esto anda bien
             for (int y = 0; y < 600; y++)

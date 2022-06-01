@@ -6,9 +6,10 @@
 
 #include <vector>
 
-#define NEURON_ANGLE 30
-#define NEURON_RANGE 5
-#define SENSOR_SIZE 10
+#define NEURON_ANGLE 15
+#define NEURON_RANGE 8
+#define SENSOR_SIZE 3
+#define PHEROMONE_RESPONSE_STRENGTH 1
 
 typedef struct {
 	int home;
@@ -19,14 +20,13 @@ class ant
 {
 public:
 
-	float	wanderStrength=0.005;
+	float	wanderStrength=0.003;
 
 	raylib::Vector2 position;
 	raylib::Vector2 velocity;
-	raylib::Vector2 velocityDesviation;
 	bool hasFood=false;
-	unsigned int homePheromonePower=100;
-	unsigned int foodPheromonePower=0;
+	int homePheromonePower=300;
+	int foodPheromonePower=0;
 
 
 	void update(float timeStep, Image& map, std::vector<pheromones>& pheromoneMap);
