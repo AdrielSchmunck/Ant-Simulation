@@ -18,10 +18,10 @@
 
 
 #define TIME_STEP 1.0f
-#define ANT_AMOUNT 5000
-#define ANT_INITIAL_POSITION { screenWidth/2, screenHeight/2 }
-#define DIFUSION_TIMER 5
-
+#define ANT_AMOUNT 5000                                         //cantidad de hormigas
+#define ANT_INITIAL_POSITION { screenWidth/2, screenHeight/2 }  //posicion inical de hormigas
+#define DIFUSION_TIMER 0                                        //cada cuantos ciclos reduzco en 1 el nivel de feromonas
+                                                                //si es 0, lo reduzco cada ciclo
 using namespace std;
 
 

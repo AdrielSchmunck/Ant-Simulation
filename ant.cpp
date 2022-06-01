@@ -87,22 +87,29 @@ void ant::update(float timeStep, Image &map, std::vector<pheromones> &pheromoneM
 		{
 			if (hasFood)
 			{
-				if (pheromoneMap[(((int)position.y) * map.width + (int)position.x)].food < 5000)
+				if (pheromoneMap[(((int)position.y) * map.width + (int)position.x)].food < PHEROMONE_FOOD_MAX)
 				{
-					pheromoneMap[((int)position.y * map.width + (int)position.x)].food += (int)(foodPheromonePower * 0.5);
-					if (foodPheromonePower > 20)
-						foodPheromonePower -= 1;
-
+					
+					pheromoneMap[((int)position.y * map.width + (int)position.x)].food += (int)(foodPheromonePower * PHEROMONE_FOOD_MULTIPLICATOR);
+					if (foodPheromonePower > PHEROMONE_FOOD_MIN)
+					{
+						foodPheromonePower -= 1;			
+					}
+						
 					//pheromoneMap[((int)position.y * map.width + (int)position.x)].food += 20;
 				}
 
 			}
 			else
-				if (pheromoneMap[((int)position.y * map.width + (int)position.x)].home < 5000)
+				if (pheromoneMap[((int)position.y * map.width + (int)position.x)].home < PHEROMONE_HOME_MAX)
 				{
-					pheromoneMap[((int)position.y * map.width + (int)position.x)].home += (int)(homePheromonePower * 0.5);
-					if (homePheromonePower > 10)
+					
+					pheromoneMap[((int)position.y * map.width + (int)position.x)].home += (int)(homePheromonePower * PHEROMONE_HOME_MULTIPLICATOR);
+					if (homePheromonePower > PHEROMONE_HOME_MIN)
+					{
 						homePheromonePower -= 1;
+					}
+						
 					//pheromoneMap[((int)position.y * map.width + (int)position.x)].home += 20;
 
 				}
@@ -138,7 +145,7 @@ int ant::checkColision(Image& map, float timeStep)
 			if (!hasFood)			//si detecto comida y no tengo comida, como. Devuelvo 4. Si no, 5
 			{
 				hasFood = 1;
-				foodPheromonePower = 300;
+				foodPheromonePower = PHEROMONE_FOOD_RECHARGE;
 				homePheromonePower = 0;
 				return 4;
 			}
@@ -158,7 +165,7 @@ int ant::checkColision(Image& map, float timeStep)
 			{
 				hasFood = 0;
 				foodPheromonePower = 0;
-				homePheromonePower = 300;
+				homePheromonePower = PHEROMONE_HOME_RECHARGE;
 				return 7;
 			}
 		}
@@ -237,7 +244,7 @@ unsigned int ant::getScoreArroundPoint(std::vector<pheromones> &pheromoneMap, ra
 		newScore = scoreFood - scoreHome;
 	}
 	//return score;
-	return (newScore > 0 ? newScore : 0);
+	//return (newScore > 0 ? newScore : 0);
 	return (pheromoneType ? scoreFood : scoreHome);
 }
 
