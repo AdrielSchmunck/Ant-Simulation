@@ -18,10 +18,12 @@
 
 
 #define TIME_STEP 1.0f
-#define ANT_AMOUNT 10000                                        //cantidad de hormigas
+#define ANT_AMOUNT 5000                                        //cantidad de hormigas
 #define ANT_INITIAL_POSITION { screenWidth/2, screenHeight/2 }  //posicion inical de hormigas
 #define DIFUSION_TIMER 1                                        //cada cuantos ciclos reduzco en 1 el nivel de feromonas
                                                                 //si es 0, lo reduzco cada ciclo
+#define PHEROMONE_EVAPORATION_AMOUNT 0.9                       
+
 using namespace std;
 
 
@@ -49,7 +51,7 @@ int main()
     }
 
     raylib::Color terrainColor = BLACK;
-    Image map = LoadImage("C:/Users/USUARIO/Desktop/ITBA/Algoritmos y estructuras de datos/Ant Simulation/resources/map5.png");
+    Image map = LoadImage("C:/Users/USUARIO/Desktop/ITBA/Algoritmos y estructuras de datos/Ant Simulation/resources/map2.png");
 
     Texture2D mapTexture = LoadTextureFromImage(map);    
 
@@ -100,7 +102,7 @@ int main()
                     i.position = { screenWidth / 2,screenHeight / 2 };
                     i.hasFood = 0;
                     i.homePheromonePower = 300;
-                    cout << "HORMIGA ILEGAL!! " << endl;
+                    //cout << "HORMIGA ILEGAL!! " << endl;
                     
                 }
             }
@@ -114,13 +116,13 @@ int main()
                 if (i.food > 0)
                 {
                     //i.food -= 1;
-                    i.food = i.food * 0.99;
+                    i.food = i.food * PHEROMONE_EVAPORATION_AMOUNT;
                 }
                     
                 if (i.home > 0)
                 {
                     //i.home -= 1;
-                    i.home = i.home * 0.99;
+                    i.home = i.home * PHEROMONE_EVAPORATION_AMOUNT;
                 }
                     
             }
@@ -151,7 +153,7 @@ int main()
             for (int y = 0; y < 600; y++)
             {
                 if (pheromoneMap[y * 1000 + x].home >0 )
-                    DrawPixel(x, y, ColorAlpha(YELLOW,0.8f));
+                    DrawPixel(x, y, ColorAlpha(PURPLE,0.5f));
             }
         for (int x = 0; x < 1000; x++)
             for (int y = 0; y < 600; y++)

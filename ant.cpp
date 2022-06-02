@@ -11,7 +11,7 @@ using namespace std;
 void ant::update(float timeStep, Image &map, std::vector<pheromones> &pheromoneMap)
 {
 	raylib::Vector2 velocityDesviation;
-	raylib::Vector2 pheromoneVelocity;
+	raylib::Vector2 pheromoneVelocity = Vector2Zero();
 	vector<unsigned int> neurone(3);
 	
 	neurone[0] = 0;
@@ -90,43 +90,55 @@ void ant::update(float timeStep, Image &map, std::vector<pheromones> &pheromoneM
 
 		velocity = (velocity + pheromoneVelocity*PHEROMONE_RESPONSE_STRENGTH +velocityDesviation * wanderStrength).Normalize();
 
-		//dejo feromona si no me choque con nada
-		if (1)
+		//dejo feromona
+		/*if (hasFood)
 		{
-			if (hasFood)
+			if (pheromoneMap[(((int)position.y) * map.width + (int)position.x)].food < PHEROMONE_FOOD_MAX)
 			{
-				if (pheromoneMap[(((int)position.y) * map.width + (int)position.x)].food < PHEROMONE_FOOD_MAX)
+				
+				pheromoneMap[((int)position.y * map.width + (int)position.x)].food += (foodPheromonePower * PHEROMONE_FOOD_MULTIPLICATOR);
+				if (foodPheromonePower > PHEROMONE_FOOD_MIN)
 				{
-					
-					pheromoneMap[((int)position.y * map.width + (int)position.x)].food += (int)(foodPheromonePower * PHEROMONE_FOOD_MULTIPLICATOR);
-					if (foodPheromonePower > PHEROMONE_FOOD_MIN)
-					{
-						foodPheromonePower -= 1;			
-					}
-						
-					//pheromoneMap[((int)position.y * map.width + (int)position.x)].food += 20;
+					foodPheromonePower -= 1;			
 				}
-
 			}
-			else
-				if (pheromoneMap[((int)position.y * map.width + (int)position.x)].home < PHEROMONE_HOME_MAX)
+		}
+		else
+			if (pheromoneMap[((int)position.y * map.width + (int)position.x)].home < PHEROMONE_HOME_MAX)
+			{
+				
+				pheromoneMap[((int)position.y * map.width + (int)position.x)].home += (homePheromonePower * PHEROMONE_HOME_MULTIPLICATOR);
+				if (homePheromonePower > PHEROMONE_HOME_MIN)
 				{
-					
-					pheromoneMap[((int)position.y * map.width + (int)position.x)].home += (int)(homePheromonePower * PHEROMONE_HOME_MULTIPLICATOR);
-					if (homePheromonePower > PHEROMONE_HOME_MIN)
-					{
-						homePheromonePower -= 1;
-					}
-						
-					//pheromoneMap[((int)position.y * map.width + (int)position.x)].home += 20;
-
-				}
+					homePheromonePower -= 1;
+				}					
+			}*/
 		}
 		
+	if (hasFood)
+	{
+		if (pheromoneMap[(((int)position.y) * map.width + (int)position.x)].food < PHEROMONE_FOOD_MAX)
+		{
+
+			pheromoneMap[((int)position.y * map.width + (int)position.x)].food += (foodPheromonePower * PHEROMONE_FOOD_MULTIPLICATOR);
+			if (foodPheromonePower > PHEROMONE_FOOD_MIN)
+			{
+				foodPheromonePower -= 1;
+			}
+		}
 	}
+	else
+		if (pheromoneMap[((int)position.y * map.width + (int)position.x)].home < PHEROMONE_HOME_MAX)
+		{
+
+			pheromoneMap[((int)position.y * map.width + (int)position.x)].home += (homePheromonePower * PHEROMONE_HOME_MULTIPLICATOR);
+			if (homePheromonePower > PHEROMONE_HOME_MIN)
+			{
+				homePheromonePower -= 1;
+			}
+		}
 
 	position = position + velocity * timeStep;	//actualizo la posicion
-
 }
 
 int ant::checkColision(Image& map, float timeStep)

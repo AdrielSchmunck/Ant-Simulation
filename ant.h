@@ -6,12 +6,12 @@
 
 #include <vector>
 
-#define NEURON_ANGLE 15					//configuracion de neurona de feromonas. Estos valores andan bien
-#define NEURON_RANGE 10
+#define NEURON_ANGLE 10				//configuracion de neurona de feromonas. Estos valores andan bien
+#define NEURON_RANGE 7
 #define SENSOR_SIZE 3
 #define PHEROMONE_RESPONSE_STRENGTH 2
 
-#define WANDERING_STRENGT 0.007				//que tanto la hormiga se desvia. Valor mas grande = se desvia mas
+#define WANDERING_STRENGT 0.006				//que tanto la hormiga se desvia. Valor mas grande = se desvia mas
 
 #define PHEROMONE_FOOD_MIN 10				//minimo nivel de feromona que deja una hormiga
 #define PHEROMONE_HOME_MIN 10
