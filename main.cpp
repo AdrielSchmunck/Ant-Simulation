@@ -18,9 +18,9 @@
 
 
 #define TIME_STEP 1.0f
-#define ANT_AMOUNT 5000                                         //cantidad de hormigas
+#define ANT_AMOUNT 10000                                        //cantidad de hormigas
 #define ANT_INITIAL_POSITION { screenWidth/2, screenHeight/2 }  //posicion inical de hormigas
-#define DIFUSION_TIMER 0                                        //cada cuantos ciclos reduzco en 1 el nivel de feromonas
+#define DIFUSION_TIMER 1                                        //cada cuantos ciclos reduzco en 1 el nivel de feromonas
                                                                 //si es 0, lo reduzco cada ciclo
 using namespace std;
 
@@ -49,7 +49,7 @@ int main()
     }
 
     raylib::Color terrainColor = BLACK;
-    Image map = LoadImage("C:/Users/USUARIO/Desktop/ITBA/Algoritmos y estructuras de datos/Ant Simulation/resources/map1.png");
+    Image map = LoadImage("C:/Users/USUARIO/Desktop/ITBA/Algoritmos y estructuras de datos/Ant Simulation/resources/map5.png");
 
     Texture2D mapTexture = LoadTextureFromImage(map);    
 
@@ -112,9 +112,17 @@ int main()
             for (auto& i : pheromoneMap)
             {
                 if (i.food > 0)
-                    i.food -= 1;
+                {
+                    //i.food -= 1;
+                    i.food = i.food * 0.99;
+                }
+                    
                 if (i.home > 0)
-                    i.home -= 1;
+                {
+                    //i.home -= 1;
+                    i.home = i.home * 0.99;
+                }
+                    
             }
             pheromoneTimer = 0;
         }
@@ -138,20 +146,20 @@ int main()
         //    else if(i.homePheromonePower>10)
         //        DrawPixelV(i.position, RED);
         //}
-       
+        BeginBlendMode(BLEND_MULTIPLIED);
         for(int x=0;x<1000;x++)             //esto anda bien
             for (int y = 0; y < 600; y++)
             {
                 if (pheromoneMap[y * 1000 + x].home >0 )
-                    DrawPixel(x, y, ColorAlpha(PURPLE,float(pheromoneMap[y * 1000 + x].home)));
+                    DrawPixel(x, y, ColorAlpha(YELLOW,0.8f));
             }
         for (int x = 0; x < 1000; x++)
             for (int y = 0; y < 600; y++)
             {
                 if (pheromoneMap[y * 1000 + x].food > 0)
-                    DrawPixel(x, y, ColorAlpha(BLUE, pheromoneMap[y * 1000 + x].food));
+                    DrawPixel(x, y, ColorAlpha(BLUE, 0.5f));
             }
-
+        EndBlendMode();
 
         EndTextureMode();
 

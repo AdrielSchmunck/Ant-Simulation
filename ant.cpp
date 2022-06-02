@@ -46,6 +46,14 @@ void ant::update(float timeStep, Image &map, std::vector<pheromones> &pheromoneM
 	{
 		velocity = -velocity;
 	}
+	else if (colision == 8)
+	{
+		velocity = velocity;
+	}
+	else if (colision == 9)
+	{
+		velocity = velocity;
+	}
 	else		//no detecte nada de terreno o comida
 	{			
 		//checkeo feromonas
@@ -53,7 +61,7 @@ void ant::update(float timeStep, Image &map, std::vector<pheromones> &pheromoneM
 		{
 			neurone[0] = getScoreArroundPoint(pheromoneMap, position - (raylib::Vector2)Vector2Rotate(velocity, -NEURON_ANGLE) * NEURON_RANGE, 0);
 			neurone[1] = getScoreArroundPoint(pheromoneMap, position + velocity * NEURON_RANGE, 0);
-			neurone[2] = getScoreArroundPoint(pheromoneMap, position - (raylib::Vector2)Vector2Rotate(velocity, 0) * NEURON_RANGE, 0);
+			neurone[2] = getScoreArroundPoint(pheromoneMap, position - (raylib::Vector2)Vector2Rotate(velocity, NEURON_ANGLE) * NEURON_RANGE, 0);
 		}
 		else
 		{
@@ -124,13 +132,15 @@ void ant::update(float timeStep, Image &map, std::vector<pheromones> &pheromoneM
 int ant::checkColision(Image& map, float timeStep)
 {
 	raylib::Vector2 futurePositionFoward = position + velocity * timeStep;
-	raylib::Vector2 morefuturePositionFoward = position + velocity * timeStep*2;
+	raylib::Vector2 morefuturePositionFoward = position + velocity * timeStep*20;
+	raylib::Vector2 littlefuturePositionFoward = position + velocity * timeStep * 5;
 	//raylib::Vector2 futurePositionLeft = position - Vector2Rotate(velocity * timeStep,-NEURON_ANGLE) ;
 	//raylib::Vector2 futurePositionRight = position - Vector2Rotate(velocity * timeStep, NEURON_ANGLE);
 
 
 	raylib::Color pixelFoward = GetImageColor(map, (int)futurePositionFoward.x, (int)futurePositionFoward.y);
 	raylib::Color pixelMoreFoward = GetImageColor(map, (int)morefuturePositionFoward.x, (int)morefuturePositionFoward.y);
+	raylib::Color pixelLittleFoward = GetImageColor(map, (int)littlefuturePositionFoward.x, (int)littlefuturePositionFoward.y);
 	//raylib::Color pixelLeft = GetImageColor(map, (int)futurePositionLeft.x, (int)futurePositionLeft.y);
 	//raylib::Color pixelRight = GetImageColor(map, (int)futurePositionRight.x, (int)futurePositionRight.y);
 
@@ -138,7 +148,7 @@ int ant::checkColision(Image& map, float timeStep)
 	raylib::Color pixelFood = BLUE;
 	raylib::Color pixelHome = YELLOW;
 
-	if ((pixelMoreFoward==pixelWall) || (pixelFoward == pixelWall) || (pixelFoward == pixelFood) || (pixelFoward == pixelHome))
+	if ((pixelLittleFoward == pixelWall)||(pixelFoward == pixelWall) || (pixelFoward == pixelFood) || (pixelFoward == pixelHome))
 	{
 		if (pixelFoward == pixelFood)		
 		{
@@ -170,8 +180,21 @@ int ant::checkColision(Image& map, float timeStep)
 			}
 		}
 		else
-			return 1;		//detecto pared o comida o casa 
-							//PUEDO AGREGAR: Que gire al lado opuesto si ve pared de un lado
+		{
+			/*foodPheromonePower = 0;
+			homePheromonePower = 0;*/
+			return 1;										//detecto pared 
+							
+		}
+			
+	}
+	else if ((pixelMoreFoward == pixelFood)&&!hasFood)	//comida bastante mas adelante
+	{
+		return 8;
+	}
+	else if ((pixelMoreFoward == pixelHome)&&hasFood)	//casa bastante mas adelante
+	{
+		return 9;
 	}
 	
 	return 3;
@@ -244,7 +267,8 @@ unsigned int ant::getScoreArroundPoint(std::vector<pheromones> &pheromoneMap, ra
 		newScore = scoreFood - scoreHome;
 	}
 	//return score;
-	//return (newScore > 0 ? newScore : 0);
-	return (pheromoneType ? scoreFood : scoreHome);
+	//newScore = (newScore > 0 ? newScore : 0);
+	//return newScore;
+	return (pheromoneType == 1 ? scoreFood : scoreHome);
 }
 
